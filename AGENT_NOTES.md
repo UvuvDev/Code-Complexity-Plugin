@@ -341,11 +341,22 @@ replace an in-app smoke test after reloading the plugin.
 
 ## Known gaps / things not done
 
-- The C++ mirror (`complexity.cpp`, `binaryninjaapi.h`'s `Function::GetComplexity`/
-  `GetComplexityMetricNames` declarations, validated earlier via a real BN core build) was **not**
-  updated with `code_references`. It's a separate, heavier effort (needs a real BN core build to
-  validate against, either `BN_ALLOW_STUBS` or the parallel checkout at
-  `/Users/bradleyfernandez/binaryninja/api`) that hasn't been requested since.
+- **Update (superseding the note this replaced)**: the C++ implementation moved into the actual
+  Binary Ninja core itself (`core/complexity.cpp` in the private core repo at
+  `/Users/bradleyfernandez/binaryninja`, not the public `binaryninja-api` repo) and now includes
+  `code_references`. `binaryninjaapi.h`/`function.cpp`'s `Function::GetComplexity`/
+  `GetComplexityMetricNames` in the public API repo are now a thin wrapper calling
+  `BNGetFunctionComplexity`/`BNGetFunctionComplexityMetricNames` (new core C API), rather than each
+  language binding reimplementing the metric engine independently - Rust bindings
+  (`Function::complexity`/`complexity_metric_names` in `rust/src/function.rs`) go through the same
+  C API. All three layers validated directly: a real incremental core build links with both new
+  symbols confirmed exported via `nm`; the updated public API `function.cpp` syntax-checks cleanly;
+  `cargo check` on the Rust crate passes with bindgen picking up the new declarations automatically.
+  The core-side change (in the private core repo) is **not part of any `binaryninja-api` PR** and
+  needs to be committed/reviewed separately through Vector35's own process - the public API's
+  `function.cpp`/Rust changes won't link without it.
+  Python's `complexity.py` (both the canonical repo copy and this plugin's standalone copy) remains
+  its own independent implementation, same as before - it never went through the C API.
 - Old-cache rows missing a newer metric display as `0.0`, indistinguishable from a genuinely-zero
   value, until the next Refresh. A visually distinct placeholder (e.g. "–") was floated but not
   implemented.
