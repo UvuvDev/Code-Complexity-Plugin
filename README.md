@@ -44,9 +44,3 @@ git clone https://github.com/UvuvDev/Code-Complexity-Plugin.git \
 (On Linux: `~/.binaryninja/plugins/`. On Windows: `%APPDATA%\Binary Ninja\plugins\`.)
 
 Restart Binary Ninja, then open the **Code Complexity** panel from the sidebar.
-
-## Development notes
-
-See [`AGENT_NOTES.md`](AGENT_NOTES.md) for the plugin's architecture, design decisions, and a
-catalog of non-obvious bugs found and fixed during development — useful context before making
-further changes.
